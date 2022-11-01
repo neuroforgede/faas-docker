@@ -75,7 +75,7 @@ func (l *FunctionLookup) ResolveContext(ctx context.Context, name string) (u url
 // resolve the function by checking the available docker VIP based resolution
 func (l *FunctionLookup) byName(ctx context.Context, name string) (string, error) {
 	serviceFilter := filters.NewArgs()
-	serviceFilter.Add("name", name)
+	serviceFilter.Add("name", globalConfig.NFFaaSDockerProject+"_"+name)
 	services, err := l.lister.ServiceList(ctx, types.ServiceListOptions{Filters: serviceFilter})
 
 	if err != nil {
@@ -83,7 +83,7 @@ func (l *FunctionLookup) byName(ctx context.Context, name string) (string, error
 	}
 
 	if len(services) > 0 {
-		return name, nil
+		return globalConfig.NFFaaSDockerProject + "_" + name, nil
 	}
 
 	return "", fmt.Errorf("could not resolve: %s", name)
@@ -91,7 +91,7 @@ func (l *FunctionLookup) byName(ctx context.Context, name string) (string, error
 
 // resolve the function by checking the available docker DNSRR resolution
 func (l *FunctionLookup) byDNSRoundRobin(ctx context.Context, name string) (string, error) {
-	entries, lookupErr := l.dnsrrLookup(ctx, fmt.Sprintf("tasks.%s", name))
+	entries, lookupErr := l.dnsrrLookup(ctx, fmt.Sprintf("tasks.%s", globalConfig.NFFaaSDockerProject+"_"+name))
 
 	if lookupErr != nil {
 		return "", lookupErr

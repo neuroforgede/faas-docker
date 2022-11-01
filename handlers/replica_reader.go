@@ -65,7 +65,7 @@ func getAvailableReplicas(c *client.Client, service string) (uint64, error) {
 
 	taskFilter := filters.NewArgs()
 	taskFilter.Add("_up-to-date", "true")
-	taskFilter.Add("service", service)
+	taskFilter.Add("service", globalConfig.NFFaaSDockerProject+"_"+service)
 	taskFilter.Add("desired-state", "running")
 
 	tasks, err := c.TaskList(context.Background(), types.TaskListOptions{Filters: taskFilter})

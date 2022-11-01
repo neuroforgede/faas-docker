@@ -43,14 +43,14 @@ func Test_ProxyURLResolver_ByName(t *testing.T) {
 
 	for _, s := range scenarios {
 		t.Run(s.name, func(t *testing.T) {
-			docker := testServiceLister{s.fncName, s.resolverErr, s.err}
+			docker := testServiceLister{globalConfig.NFFaaSDockerProject + "_" + s.fncName, s.resolverErr, s.err}
 			u, err := NewFunctionLookup(docker, false).Resolve("testFnc")
 			if err != nil && err.Error() != s.err.Error() {
 				t.Errorf("expected resolver error `%s`, got `%s`", s.err, err)
 			}
 
-			if s.err == nil && u.Host != s.fncName {
-				t.Errorf("expected url host `%s`, got `%s`", s.fncName, u.Host)
+			if s.err == nil && u.Host != globalConfig.NFFaaSDockerProject+"_"+s.fncName {
+				t.Errorf("expected url host `%s`, got `%s`", globalConfig.NFFaaSDockerProject+"_"+s.fncName, u.Host)
 			}
 		})
 	}
@@ -72,7 +72,7 @@ func Test_ProxyURLResolver_RoundRobingErrs(t *testing.T) {
 
 	for _, s := range scenarios {
 		t.Run(s.name, func(t *testing.T) {
-			docker := testServiceLister{s.fncName, s.resolverErr, s.err}
+			docker := testServiceLister{globalConfig.NFFaaSDockerProject + "_" + s.fncName, s.resolverErr, s.err}
 			resolver := NewFunctionLookup(docker, true)
 			resolver.dnsrrLookup = testDNSRRLookup
 
@@ -89,11 +89,11 @@ func Test_ProxyURLResolver_RoundRobingErrs(t *testing.T) {
 }
 
 func testDNSRRLookup(ctx context.Context, name string) ([]net.IP, error) {
-	if name == "tasks.dnsrrTestFncDoesNotExist" {
+	if name == "tasks."+globalConfig.NFFaaSDockerProject+"_dnsrrTestFncDoesNotExist" {
 		return nil, errors.New("lookup tasks.dnsrrTestFncDoesNotExist: no such host")
 	}
 
-	if name == "tasks.dnsrrTestFncExists" {
+	if name == "tasks."+globalConfig.NFFaaSDockerProject+"_dnsrrTestFncExists" {
 		return []net.IP{net.IPv4zero}, nil
 	}
 

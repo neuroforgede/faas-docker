@@ -50,7 +50,7 @@ func ReplicaUpdater(c *client.Client) http.HandlerFunc {
 
 		log.Printf("Scaling %s to %d replicas", functionName, req.Replicas)
 
-		scaleErr := scaleService(functionName, req.Replicas, serviceQuery)
+		scaleErr := scaleService(globalConfig.NFFaaSDockerProject+"_"+functionName, req.Replicas, serviceQuery)
 		if scaleErr != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(scaleErr.Error()))
