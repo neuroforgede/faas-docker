@@ -1,7 +1,7 @@
 Proudly made by [NeuroForge](https://neuroforge.de/) in Bayreuth, Germany.
 
 nf-faas-docker
-===========
+==============
 
 INOFFICIAL support for Docker Swarm in OpenFaaS ®. Not to be confused with any other deprecated offerings from OpenFaaS®.
 
@@ -12,6 +12,8 @@ Deployment code is at https://github.com/neuroforgede/nf-faas-docker-stack
 ## Summary
 
 This project adds support for Docker Swarm for usage in modern versions of OpenFaaS ®.
+
+We do not aim to keep backwards support for existing deployments using faas-swarm. If you need help migrating, please reach out in the discussions.
 
 ## Trademark notice
 

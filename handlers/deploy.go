@@ -111,6 +111,7 @@ func DeployHandler(dockerConfig DockerConfig, c *client.Client, maxRestarts uint
 func lookupNetwork(c *client.Client) (string, error) {
 	networkFilters := filters.NewArgs()
 	networkFilters.Add("label", "openfaas=true")
+	networkFilters.Add("label", "com.github.neuroforgede.nf-faas-docker.project="+globalConfig.NFFaaSDockerProject)
 	networkListOptions := types.NetworkListOptions{
 		Filters: networkFilters,
 	}

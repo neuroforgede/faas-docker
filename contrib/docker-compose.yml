@@ -79,7 +79,8 @@ services:
         environment:
             read_timeout: "5m5s" # set both here, and on your functions
             write_timeout: "5m5s" # set both here, and on your functions
-            DOCKER_API_VERSION: "1.30"
+            DOCKER_API_VERSION: "1.41"
+            NF_FAAS_DOCKER_PROJECT: "default"
             basic_auth: "${BASIC_AUTH:-true}"
             secret_mount_path: "/run/secrets/"
         deploy:
@@ -224,6 +225,7 @@ networks:
         attachable: true
         labels:
             - "openfaas=true"
+            - "com.github.neuroforgede.nf-faas-docker.project=default"
 
 secrets:
     basic-auth-user:
