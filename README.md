@@ -4,6 +4,9 @@ nf-faas-docker
 INOFFICIAL support for Docker Swarm in OpenFaaS ®. Not to be confused with any other deprecated offerings from OpenFaaS®.
 
 OpenFaaS® provider fork for Docker Swarm. Supports faas-provider SDK v0.19.1
+
+Deployment code is at https://github.com/neuroforgede/nf-faas-docker-stack
+
 ## Summary
 
 This project adds support for Docker Swarm for usage in modern versions of OpenFaaS ®.
