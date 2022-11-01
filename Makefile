@@ -1,4 +1,4 @@
-TAG?=latest-dev
+TAG?=0.12.0-dev
 .PHONY: build
 build:
 	docker build --build-arg http_proxy="${http_proxy}" --build-arg https_proxy="${https_proxy}" -t neuroforgede/nf-faas-docker:$(TAG) .
