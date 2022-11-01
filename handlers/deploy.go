@@ -30,7 +30,7 @@ const annotationLabelPrefix = "com.openfaas.annotations."
 var linuxOnlyConstraints = []string{"node.platform.os == linux"}
 
 // DeployHandler creates a new function (service) inside the swarm network.
-func DeployHandler(c *client.Client, maxRestarts uint64, restartDelay time.Duration) http.HandlerFunc {
+func DeployHandler(dockerConfig DockerConfig, c *client.Client, maxRestarts uint64, restartDelay time.Duration) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		body, _ := ioutil.ReadAll(r.Body)
@@ -45,7 +45,7 @@ func DeployHandler(c *client.Client, maxRestarts uint64, restartDelay time.Durat
 
 		options := types.ServiceCreateOptions{}
 
-		registryAuth, err := GetAuthFromImage(request.Image)
+		registryAuth, err := GetAuthFromImage(dockerConfig, request.Image)
 		if err != nil {
 			log.Println("Error building registry auth configuration:", err)
 			w.WriteHeader(http.StatusBadRequest)

@@ -52,14 +52,20 @@ func main() {
 
 	funcProxyHandler := handlers.NewFunctionLookup(dockerClient, cfg.DNSRoundRobin)
 
+	dockerConfig, dockerConfigErr := handlers.ParseDockerConfig()
+	if dockerConfigErr != nil {
+		dockerConfig = handlers.DefaultDockerConfig()
+		log.Println("failed to parse docker config. defaulting to empty", dockerConfigErr)
+	}
+
 	bootstrapHandlers := bootTypes.FaaSHandlers{
 		DeleteHandler:        handlers.DeleteHandler(dockerClient),
-		DeployHandler:        handlers.DeployHandler(dockerClient, maxRestarts, restartDelay),
+		DeployHandler:        handlers.DeployHandler(dockerConfig, dockerClient, maxRestarts, restartDelay),
 		FunctionReader:       handlers.FunctionReader(true, dockerClient),
 		FunctionProxy:        proxy.NewHandlerFunc(cfg.FaaSConfig, funcProxyHandler),
 		ReplicaReader:        handlers.ReplicaReader(dockerClient),
 		ReplicaUpdater:       handlers.ReplicaUpdater(dockerClient),
-		UpdateHandler:        handlers.UpdateHandler(dockerClient, maxRestarts, restartDelay),
+		UpdateHandler:        handlers.UpdateHandler(dockerConfig, dockerClient, maxRestarts, restartDelay),
 		HealthHandler:        handlers.Health(),
 		InfoHandler:          handlers.MakeInfoHandler(version.BuildVersion(), version.GitCommit),
 		SecretHandler:        handlers.MakeSecretsHandler(dockerClient),

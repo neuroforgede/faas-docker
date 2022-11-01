@@ -18,25 +18,21 @@ type DockerRegistryAuthConfig struct {
 	auth string
 }
 
-func GetAuthFromImage(image string) (string, error) {
-	url, err := url.Parse(image)
-	if err != nil {
-		return "", err
+func DefaultDockerConfig() DockerConfig {
+	return DockerConfig{
+		auths: map[string]DockerRegistryAuthConfig{},
 	}
-
-	registry := url.Host
-	return GetAuth(registry)
 }
 
-func GetAuth(registry string) (string, error) {
+func ParseDockerConfig() (DockerConfig, error) {
 	dockerConfigPath, foundDockerConfigPath := os.LookupEnv("DOCKER_CONFIG_PATH")
 	if !foundDockerConfigPath {
-		dockerConfigPath = "/run/secret/docker-config"
+		dockerConfigPath = "/run/secrets/docker-config"
 	}
 
 	if _, err := os.Stat(dockerConfigPath); errors.Is(err, os.ErrNotExist) {
 		log.Println("did not find docker-config secret file at " + dockerConfigPath)
-		return "", nil
+		return DefaultDockerConfig(), nil
 	}
 
 	// Open our jsonFile
@@ -44,7 +40,7 @@ func GetAuth(registry string) (string, error) {
 	// if we os.Open returns an error then handle it
 	if err != nil {
 		fmt.Println(err)
-		return "", err
+		return DefaultDockerConfig(), err
 	}
 
 	defer jsonFile.Close()
@@ -60,8 +56,23 @@ func GetAuth(registry string) (string, error) {
 	err = json.Unmarshal(byteValue, &dockerConfig)
 	if err != nil {
 		fmt.Println(err)
+		return DefaultDockerConfig(), err
+	}
+
+	return dockerConfig, nil
+}
+
+func GetAuthFromImage(dockerConfig DockerConfig, image string) (string, error) {
+	url, err := url.Parse(image)
+	if err != nil {
 		return "", err
 	}
+
+	registry := url.Host
+	return GetAuth(dockerConfig, registry)
+}
+
+func GetAuth(dockerConfig DockerConfig, registry string) (string, error) {
 
 	if dockerConfig.auths != nil {
 		dockerRegistryConfig, exist := dockerConfig.auths[registry]

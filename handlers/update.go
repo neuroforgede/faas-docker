@@ -18,7 +18,7 @@ import (
 )
 
 // UpdateHandler updates an existng function
-func UpdateHandler(c *client.Client, maxRestarts uint64, restartDelay time.Duration) http.HandlerFunc {
+func UpdateHandler(dockerConfig DockerConfig, c *client.Client, maxRestarts uint64, restartDelay time.Duration) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.Background()
@@ -72,7 +72,7 @@ func UpdateHandler(c *client.Client, maxRestarts uint64, restartDelay time.Durat
 		updateOpts := types.ServiceUpdateOptions{}
 		updateOpts.RegistryAuthFrom = types.RegistryAuthFromSpec
 
-		registryAuth, err := GetAuthFromImage(request.Image)
+		registryAuth, err := GetAuthFromImage(dockerConfig, request.Image)
 		if err != nil {
 			log.Println("Error building registry auth configuration:", err)
 			w.WriteHeader(http.StatusBadRequest)
