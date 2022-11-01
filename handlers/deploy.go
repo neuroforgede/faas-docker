@@ -148,6 +148,12 @@ func makeSpec(request *typesv1.FunctionDeployment, maxRestarts uint64, restartDe
 	nets := []swarm.NetworkAttachmentConfig{
 		{
 			Target: network,
+			// required so that the gateway can directly call via function name
+			// and if we need some kind of deduplication via suffixes we provide that as well
+			Aliases: []string{
+				request.Service,
+				request.Service + "_" + request.Service,
+			},
 		},
 	}
 

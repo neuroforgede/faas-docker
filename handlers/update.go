@@ -136,6 +136,12 @@ func updateSpec(request *typesv1.FunctionDeployment, spec *swarm.ServiceSpec, ma
 	spec.TaskTemplate.Networks = []swarm.NetworkAttachmentConfig{
 		{
 			Target: network,
+			// required so that the gateway can directly call via function name
+			// and if we need some kind of deduplication via suffixes we provide that as well
+			Aliases: []string{
+				request.Service,
+				request.Service + "_" + request.Service,
+			},
 		},
 	}
 
