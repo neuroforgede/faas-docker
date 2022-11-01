@@ -281,7 +281,7 @@ func buildResources(request *typesv1.FunctionDeployment) *swarm.ResourceRequirem
 		resources = &swarm.ResourceRequirements{}
 
 		if request.Limits != nil {
-			limits := &swarm.Resources{}
+			limits := &swarm.Limit{}
 			valueSet := false
 
 			if len(request.Limits.Memory) > 0 {
