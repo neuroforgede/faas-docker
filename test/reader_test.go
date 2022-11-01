@@ -11,7 +11,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/swarm"
-	"github.com/openfaas/faas-swarm/handlers"
+	"github.com/neuroforgede/nf-faas-docker/handlers"
 	"golang.org/x/net/context"
 
 	typesv1 "github.com/openfaas/faas-provider/types"

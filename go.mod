@@ -1,4 +1,4 @@
-module github.com/openfaas/faas-swarm
+module github.com/neuroforgede/nf-faas-docker
 
 go 1.15
 

@@ -7,7 +7,7 @@ services:
         networks:
             - functions
         environment:
-            functions_provider_url: "http://faas-swarm:8080/"
+            functions_provider_url: "http://nf-faas-docker:8080/"
             read_timeout: "5m5s" # Maximum time to read HTTP request
             write_timeout: "5m5s" # Maximum time to write HTTP response
             upstream_timeout: "5m" # Maximum duration of upstream function call - should be more than read_timeout and write_timeout
@@ -70,10 +70,10 @@ services:
             - basic-auth-password
 
     # Docker Swarm provider
-    faas-swarm:
+    nf-faas-docker:
         volumes:
             - "/var/run/docker.sock:/var/run/docker.sock"
-        image: openfaas/faas-swarm:latest-dev
+        image: neuroforgede/nf-faas-docker:latest-dev
         networks:
             - functions
         environment:

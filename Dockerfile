@@ -5,13 +5,13 @@ ARG GO111MODULE=off
 ARG CGO_ENABLED=0
 COPY --from=license-check /license-check /usr/bin/
 
-RUN mkdir -p /go/src/github.com/openfaas/faas-swarm/
+RUN mkdir -p /go/src/github.com/neuroforgede/nf-faas-docker/
 
-WORKDIR /go/src/github.com/openfaas/faas-swarm
+WORKDIR /go/src/github.com/neuroforgede/nf-faas-docker
 
 COPY . .
 
-RUN license-check -path /go/src/github.com/openfaas/faas-swarm/ --verbose=false "Alex Ellis" "OpenFaaS Author(s)"
+RUN license-check -path /go/src/github.com/neuroforgede/nf-faas-docker/ --verbose=false "Alex Ellis" "OpenFaaS Author(s)"
 
 RUN gofmt -l -d $(find . -type f -name '*.go' -not -path "./vendor/*")
 
@@ -20,16 +20,16 @@ RUN CGO_ENABLED=$CGO_ENABLED go test $(go list ./... | grep -v /vendor/) -cover
 RUN VERSION=$(git describe --all --exact-match `git rev-parse HEAD` | grep tags | sed 's/tags\///') \
     && GIT_COMMIT=$(git rev-list -1 HEAD) \
     && CGO_ENABLED=$CGO_ENABLED GOOS=linux go build --ldflags "-s -w \
-    -X github.com/neuroforgede/faas-swarm/version.GitCommit=${GIT_COMMIT}\
-    -X github.com/neuroforgede/faas-swarm/version.Version=${VERSION}" \
-    -a -installsuffix cgo -o faas-swarm .
+    -X github.com/neuroforgede/nf-faas-docker/version.GitCommit=${GIT_COMMIT}\
+    -X github.com/neuroforgede/nf-faas-docker/version.Version=${VERSION}" \
+    -a -installsuffix cgo -o nf-faas-docker .
 
 FROM alpine:3.16.2 as ship
 
 LABEL org.label-schema.license="MIT" \
-      org.label-schema.vcs-url="https://github.com/ńeuroforgede/faas-swarm" \
+      org.label-schema.vcs-url="https://github.com/ńeuroforgede/nf-faas-docker" \
       org.label-schema.vcs-type="Git" \
-      org.label-schema.name="ńeuroforgede/faas-swarm" \
+      org.label-schema.name="ńeuroforgede/nf-faas-docker" \
       org.label-schema.vendor="ńeuroforgede" \
       org.label-schema.docker.schema-version="1.0"
 
@@ -42,6 +42,6 @@ EXPOSE 8080
 ENV http_proxy      ""
 ENV https_proxy     ""
 
-COPY --from=build /go/src/github.com/openfaas/faas-swarm/faas-swarm    .
+COPY --from=build /go/src/github.com/neuroforgede/nf-faas-docker/nf-faas-docker    .
 
-CMD ["./faas-swarm"]
+CMD ["./nf-faas-docker"]

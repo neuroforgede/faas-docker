@@ -11,7 +11,7 @@ const (
 	//OrchestrationIdentifier identifier string for swarm provider
 	OrchestrationIdentifier = "swarm"
 	//ProviderName provider string for swarm provider
-	ProviderName = "faas-swarm"
+	ProviderName = "nf-faas-docker"
 )
 
 //MakeInfoHandler creates handler for /system/info endpoint

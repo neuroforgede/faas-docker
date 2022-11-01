@@ -51,7 +51,7 @@ func MakeSecretsHandler(c client.SecretAPIClient) http.HandlerFunc {
 			break
 		case http.MethodPut:
 			responseStatus = http.StatusMethodNotAllowed
-			responseErr = fmt.Errorf("faas-swarm is unable to update secrets, delete and re-create or use a new name")
+			responseErr = fmt.Errorf("nf-faas-docker is unable to update secrets, delete and re-create or use a new name")
 			break
 		case http.MethodDelete:
 			responseStatus, responseBody, responseErr = deleteSecret(c, body)

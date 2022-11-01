@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/docker/docker/api/types"
-	"github.com/openfaas/faas-swarm/handlers"
+	"github.com/neuroforgede/nf-faas-docker/handlers"
 )
 
 func TestBuildEncodedAuthConfig(t *testing.T) {

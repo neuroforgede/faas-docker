@@ -13,11 +13,11 @@ import (
 
 	"github.com/docker/docker/client"
 
+	"github.com/neuroforgede/nf-faas-docker/handlers"
+	"github.com/neuroforgede/nf-faas-docker/types"
+	"github.com/neuroforgede/nf-faas-docker/version"
 	bootstrap "github.com/openfaas/faas-provider"
 	bootTypes "github.com/openfaas/faas-provider/types"
-	"github.com/openfaas/faas-swarm/handlers"
-	"github.com/openfaas/faas-swarm/types"
-	"github.com/openfaas/faas-swarm/version"
 )
 
 func main() {

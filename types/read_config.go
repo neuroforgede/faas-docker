@@ -27,13 +27,13 @@ func (ReadConfig) Read(hasEnv ftypes.HasEnv) (SwarmConfig, error) {
 
 // SwarmConfig contains the configuration for the process.
 type SwarmConfig struct {
-	// DNSRoundRobin controls how faas-swarm will lookup functions when proxying requests.
+	// DNSRoundRobin controls how nf-faas-docker will lookup functions when proxying requests.
 	// When
 	//	DNSRoundRobin = true
-	// faas-swarm will look up the function directly from Swarm's DNS via the tasks.functionName
+	// nf-faas-docker will look up the function directly from Swarm's DNS via the tasks.functionName
 	// when
 	// 	DNSRoundRObin = false
-	// faas-swarm will attempt to resolve the function by name, validating using the Swarm API
+	// nf-faas-docker will attempt to resolve the function by name, validating using the Swarm API
 	DNSRoundRobin bool
 	// FaasConfig contains the standard OpenFaaS provider configuration
 	FaaSConfig ftypes.FaaSConfig
