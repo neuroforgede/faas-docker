@@ -55,16 +55,14 @@ func UpdateHandler(c *client.Client, maxRestarts uint64, restartDelay time.Durat
 			return
 		}
 
-		if len(request.Network) == 0 {
-			networkValue, networkErr := lookupNetwork(c)
-			if networkErr != nil {
-				log.Println("Error querying networks", networkErr)
-			} else {
-				request.Network = networkValue
-			}
+		// FIXME: add ability to specify network back (maybe via annotation?)
+		networkValue, networkErr := lookupNetwork(c)
+		if networkErr != nil {
+			log.Printf("Error querying networks: %s\n", networkErr)
+			return
 		}
 
-		if err := updateSpec(&request, &service.Spec, maxRestarts, restartDelay, secrets); err != nil {
+		if err := updateSpec(&request, &service.Spec, maxRestarts, restartDelay, secrets, networkValue); err != nil {
 			log.Println("Error updating service spec:", err)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Update spc error: " + err.Error()))
@@ -74,6 +72,7 @@ func UpdateHandler(c *client.Client, maxRestarts uint64, restartDelay time.Durat
 		updateOpts := types.ServiceUpdateOptions{}
 		updateOpts.RegistryAuthFrom = types.RegistryAuthFromSpec
 
+		// FIXME: get the login from a secret. secret should be named like the url
 		if len(request.RegistryAuth) > 0 {
 			auth, err := BuildEncodedAuthConfig(request.RegistryAuth, request.Image)
 			if err != nil {
@@ -104,7 +103,7 @@ func UpdateHandler(c *client.Client, maxRestarts uint64, restartDelay time.Durat
 	}
 }
 
-func updateSpec(request *typesv1.FunctionDeployment, spec *swarm.ServiceSpec, maxRestarts uint64, restartDelay time.Duration, secrets []*swarm.SecretReference) error {
+func updateSpec(request *typesv1.FunctionDeployment, spec *swarm.ServiceSpec, maxRestarts uint64, restartDelay time.Duration, secrets []*swarm.SecretReference, network string) error {
 
 	constraints := []string{}
 	if request.Constraints != nil && len(request.Constraints) > 0 {
@@ -129,7 +128,7 @@ func updateSpec(request *typesv1.FunctionDeployment, spec *swarm.ServiceSpec, ma
 
 	spec.TaskTemplate.Networks = []swarm.NetworkAttachmentConfig{
 		{
-			Target: request.Network,
+			Target: network,
 		},
 	}
 

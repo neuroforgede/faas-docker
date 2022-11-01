@@ -44,6 +44,7 @@ func DeployHandler(c *client.Client, maxRestarts uint64, restartDelay time.Durat
 		}
 
 		options := types.ServiceCreateOptions{}
+		// FIXME: get the login from a secret. secret should be named like the url
 		if len(request.RegistryAuth) > 0 {
 			auth, err := BuildEncodedAuthConfig(request.RegistryAuth, request.Image)
 			if err != nil {
@@ -64,16 +65,14 @@ func DeployHandler(c *client.Client, maxRestarts uint64, restartDelay time.Durat
 			return
 		}
 
-		if len(request.Network) == 0 {
-			networkValue, networkErr := lookupNetwork(c)
-			if networkErr != nil {
-				log.Printf("Error querying networks: %s\n", networkErr)
-			} else {
-				request.Network = networkValue
-			}
+		// FIXME: add ability to specify network back (maybe via annotation?)
+		networkValue, networkErr := lookupNetwork(c)
+		if networkErr != nil {
+			log.Printf("Error querying networks: %s\n", networkErr)
+			return
 		}
 
-		spec, err := makeSpec(&request, maxRestarts, restartDelay, secrets)
+		spec, err := makeSpec(&request, maxRestarts, restartDelay, secrets, networkValue)
 		if err != nil {
 
 			log.Printf("Error creating specification: %s\n", err)
@@ -120,7 +119,7 @@ func lookupNetwork(c *client.Client) (string, error) {
 	return "", nil
 }
 
-func makeSpec(request *typesv1.FunctionDeployment, maxRestarts uint64, restartDelay time.Duration, secrets []*swarm.SecretReference) (swarm.ServiceSpec, error) {
+func makeSpec(request *typesv1.FunctionDeployment, maxRestarts uint64, restartDelay time.Duration, secrets []*swarm.SecretReference, network string) (swarm.ServiceSpec, error) {
 	constraints := []string{}
 
 	if request.Constraints != nil && len(request.Constraints) > 0 {
@@ -139,7 +138,7 @@ func makeSpec(request *typesv1.FunctionDeployment, maxRestarts uint64, restartDe
 
 	nets := []swarm.NetworkAttachmentConfig{
 		{
-			Target: request.Network,
+			Target: network,
 		},
 	}
 
