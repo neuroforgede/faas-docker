@@ -1,6 +1,6 @@
 FROM teamserverless/license-check:0.3.6 as license-check
 
-FROM golang:1.13 as build
+FROM golang:1.18 as build
 ARG GO111MODULE=off
 ARG CGO_ENABLED=0
 COPY --from=license-check /license-check /usr/bin/
@@ -24,13 +24,13 @@ RUN VERSION=$(git describe --all --exact-match `git rev-parse HEAD` | grep tags 
     -X github.com/openfaas/faas-swarm/version.Version=${VERSION}" \
     -a -installsuffix cgo -o faas-swarm .
 
-FROM alpine:3.12 as ship
+FROM alpine:3.16.2 as ship
 
 LABEL org.label-schema.license="MIT" \
-      org.label-schema.vcs-url="https://github.com/openfaas/faas-swarm" \
+      org.label-schema.vcs-url="https://github.com/s4ke/faas-swarm" \
       org.label-schema.vcs-type="Git" \
-      org.label-schema.name="openfaas/faas-swarm" \
-      org.label-schema.vendor="openfaas" \
+      org.label-schema.name="s4ke/faas-swarm" \
+      org.label-schema.vendor="s4ke" \
       org.label-schema.docker.schema-version="1.0"
 
 RUN apk --no-cache add ca-certificates
