@@ -361,6 +361,7 @@ func buildLabels(request *typesv1.FunctionDeployment) (map[string]string, error)
 	labels := map[string]string{
 		"com.openfaas.function": request.Service,
 		"function":              "true", // backwards-compatible
+		"com.github.neuroforgede.nf-faas-docker.project": globalConfig.NFFaaSDockerProject,
 	}
 
 	if request.Labels != nil {

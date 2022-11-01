@@ -57,7 +57,10 @@ func Test_DeleteHandler(t *testing.T) {
 						Annotations: swarm.Annotations{Name: "test-func"},
 						TaskTemplate: swarm.TaskSpec{
 							ContainerSpec: &swarm.ContainerSpec{
-								Labels: map[string]string{"function": "true"},
+								Labels: map[string]string{
+									"function": "true",
+									"com.github.neuroforgede.nf-faas-docker.project": GetGlobalConfig().NFFaaSDockerProject,
+								},
 							},
 						},
 					},
@@ -76,7 +79,10 @@ func Test_DeleteHandler(t *testing.T) {
 						Annotations: swarm.Annotations{Name: "test-func"},
 						TaskTemplate: swarm.TaskSpec{
 							ContainerSpec: &swarm.ContainerSpec{
-								Labels: map[string]string{"function": "true"},
+								Labels: map[string]string{
+									"function": "true",
+									"com.github.neuroforgede.nf-faas-docker.project": GetGlobalConfig().NFFaaSDockerProject,
+								},
 							},
 						},
 					},

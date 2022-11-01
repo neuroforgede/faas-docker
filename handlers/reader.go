@@ -50,7 +50,7 @@ func readServices(c client.ServiceAPIClient) ([]typesv1.FunctionStatus, error) {
 
 	for _, service := range services {
 
-		if len(service.Spec.TaskTemplate.ContainerSpec.Labels["function"]) > 0 {
+		if isFunctionAndPartOfProject(service) {
 			envProcess := getEnvProcess(service.Spec.TaskTemplate.ContainerSpec.Env)
 
 			// Required (copy by value)

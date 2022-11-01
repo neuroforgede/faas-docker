@@ -55,9 +55,9 @@ func DeleteHandler(c ServiceDeleter) http.HandlerFunc {
 		// TODO: Filter only "faas" functions (via metadata?)
 		var serviceIDs []string
 		for _, service := range services {
-			isFunction := len(service.Spec.TaskTemplate.ContainerSpec.Labels["function"]) > 0
+			isFunctionOfProject := isFunctionAndPartOfProject(service)
 
-			if isFunction && req.FunctionName == service.Spec.Name {
+			if isFunctionOfProject && req.FunctionName == service.Spec.Name {
 				serviceIDs = append(serviceIDs, service.ID)
 			}
 		}

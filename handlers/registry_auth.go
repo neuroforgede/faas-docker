@@ -77,7 +77,7 @@ func GetAuth(dockerConfig DockerConfig, registry string) (string, error) {
 	if dockerConfig.auths != nil {
 		dockerRegistryConfig, exist := dockerConfig.auths[registry]
 		if exist {
-			fmt.Println("detected docker registry auth", dockerRegistryConfig)
+			fmt.Printf("detected docker registry auth for registry %s", registry)
 			return dockerRegistryConfig.auth, nil
 		}
 	}

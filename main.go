@@ -13,7 +13,7 @@ import (
 
 	"github.com/docker/docker/client"
 
-	"github.com/neuroforgede/nf-faas-docker/handlers"
+	handlers "github.com/neuroforgede/nf-faas-docker/handlers"
 	"github.com/neuroforgede/nf-faas-docker/types"
 	"github.com/neuroforgede/nf-faas-docker/version"
 	bootstrap "github.com/openfaas/faas-provider"
@@ -27,6 +27,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error with Docker client: %s.", err.Error())
 	}
+
+	handlers.InitGlobalConfig()
 
 	dockerVersion, versionErr := dockerClient.ServerVersion(context.Background())
 	if versionErr != nil {

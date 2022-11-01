@@ -16,8 +16,8 @@ func Test_BuildLabels_Defaults(t *testing.T) {
 		t.Fatalf("want: no error got: %v", err)
 	}
 
-	if len(val) != 2 {
-		t.Errorf("want: %d entries in label map got: %d", 2, len(val))
+	if len(val) != 3 {
+		t.Errorf("want: %d entries in label map got: %d", 3, len(val))
 	}
 
 	if _, ok := val["com.openfaas.function"]; !ok {
@@ -26,6 +26,18 @@ func Test_BuildLabels_Defaults(t *testing.T) {
 
 	if _, ok := val["function"]; !ok {
 		t.Errorf("want: '%s' entry in label map got: key not found", "function")
+	}
+
+	if _, ok := val["com.github.neuroforgede.nf-faas-docker.project"]; !ok {
+		t.Errorf("want: '%s' entry in label map got: key not found", "com.github.neuroforgede.nf-faas-docker.project")
+	}
+
+	if val["com.github.neuroforgede.nf-faas-docker.project"] != globalConfig.NFFaaSDockerProject {
+		t.Errorf("want: '%s' entry in label to be equal to '%s' map got: '%s",
+			"com.github.neuroforgede.nf-faas-docker.project",
+			globalConfig.NFFaaSDockerProject,
+			val["com.github.neuroforgede.nf-faas-docker.project"],
+		)
 	}
 }
 
@@ -41,8 +53,8 @@ func Test_BuildLabels_WithAnnotations(t *testing.T) {
 		t.Fatalf("want: no error got: %v", err)
 	}
 
-	if len(val) != 4 {
-		t.Errorf("want: %d entries in combined label annotation map got: %d", 4, len(val))
+	if len(val) != 5 {
+		t.Errorf("want: %d entries in combined label annotation map got: %d", 5, len(val))
 	}
 
 	if _, ok := val[fmt.Sprintf("%scurrent-time", annotationLabelPrefix)]; !ok {
@@ -61,8 +73,8 @@ func Test_BuildLabels_NoAnnotations(t *testing.T) {
 		t.Fatalf("want: no error got: %v", err)
 	}
 
-	if len(val) != 3 {
-		t.Errorf("want: %d entries in combined label annotation map got: %d", 3, len(val))
+	if len(val) != 4 {
+		t.Errorf("want: %d entries in combined label annotation map got: %d", 4, len(val))
 	}
 
 	if _, ok := val["function_name"]; !ok {
