@@ -13,6 +13,26 @@ Deployment code is at https://github.com/neuroforgede/nf-faas-docker-stack
 
 This project adds support for Docker Swarm for usage in modern versions of OpenFaaS ®.
 
+## Status
+
+Status: Released
+
+Features:
+
+* [x] Create
+* [x] Proxy
+* [x] Update
+* [x] Delete
+* [x] List
+* [x] Scale
+
+Additional Changes:
+
+- [x] Allow for multiple providers to run in the same swarm. Specified via `NF_FAAS_DOCKER_PROJECT` env var
+- [] prefix function name services with project name
+
+Docker image: [`neuroforgede/nf-faas-docker`](https://hub.docker.com/r/neuroforgede/nf-faas-docker/tags/)
+
 ## Trademark notice
 
 OpenFaaS® is a trademark of OpenFaaS Ltd. OpenFaaS ® is a registered trademark in England and Wales.
