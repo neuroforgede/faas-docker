@@ -153,7 +153,7 @@ func makeSpec(request *typesv1.FunctionDeployment, maxRestarts uint64, restartDe
 
 	spec := swarm.ServiceSpec{
 		Annotations: swarm.Annotations{
-			Name:   request.Service,
+			Name:   globalConfig.NFFaaSDockerProject + "_" + request.Service,
 			Labels: labels,
 		},
 		TaskTemplate: swarm.TaskSpec{

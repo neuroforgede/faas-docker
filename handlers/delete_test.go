@@ -54,11 +54,17 @@ func Test_DeleteHandler(t *testing.T) {
 				{
 					ID: "test-func-id",
 					Spec: swarm.ServiceSpec{
-						Annotations: swarm.Annotations{Name: "test-func"},
+						Annotations: swarm.Annotations{
+							Name: "test-func",
+							Labels: map[string]string{
+								"com.openfaas.function": "test-func",
+							},
+						},
 						TaskTemplate: swarm.TaskSpec{
 							ContainerSpec: &swarm.ContainerSpec{
 								Labels: map[string]string{
-									"function": "true",
+									"function":              "true",
+									"com.openfaas.function": "test-func",
 									"com.github.neuroforgede.nf-faas-docker.project": GetGlobalConfig().NFFaaSDockerProject,
 								},
 							},
@@ -76,11 +82,17 @@ func Test_DeleteHandler(t *testing.T) {
 				{
 					ID: "test-func-id",
 					Spec: swarm.ServiceSpec{
-						Annotations: swarm.Annotations{Name: "test-func"},
+						Annotations: swarm.Annotations{
+							Name: "test-func",
+							Labels: map[string]string{
+								"com.openfaas.function": "test-func",
+							},
+						},
 						TaskTemplate: swarm.TaskSpec{
 							ContainerSpec: &swarm.ContainerSpec{
 								Labels: map[string]string{
-									"function": "true",
+									"function":              "true",
+									"com.openfaas.function": "test-func",
 									"com.github.neuroforgede.nf-faas-docker.project": GetGlobalConfig().NFFaaSDockerProject,
 								},
 							},
@@ -89,6 +101,31 @@ func Test_DeleteHandler(t *testing.T) {
 				},
 			},
 			expectedCode: http.StatusAccepted,
+		},
+		{
+			name:     "returns NotFound when com.openfaas.function label missing",
+			funcName: "test-func",
+			services: []swarm.Service{
+				{
+					ID: "test-func-id",
+					Spec: swarm.ServiceSpec{
+						Annotations: swarm.Annotations{
+							Name:   "test-func",
+							Labels: map[string]string{},
+						},
+						TaskTemplate: swarm.TaskSpec{
+							ContainerSpec: &swarm.ContainerSpec{
+								Labels: map[string]string{
+									"function":              "true",
+									"com.openfaas.function": "test-func",
+									"com.github.neuroforgede.nf-faas-docker.project": GetGlobalConfig().NFFaaSDockerProject,
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedCode: http.StatusNotFound,
 		},
 	}
 

@@ -52,12 +52,11 @@ func DeleteHandler(c ServiceDeleter) http.HandlerFunc {
 			log.Printf("Error listing services: %s\n", err)
 		}
 
-		// TODO: Filter only "faas" functions (via metadata?)
 		var serviceIDs []string
 		for _, service := range services {
 			isFunctionOfProject := isFunctionAndPartOfProject(service)
 
-			if isFunctionOfProject && req.FunctionName == service.Spec.Name {
+			if isFunctionOfProject && req.FunctionName == service.Spec.Labels["com.openfaas.function"] {
 				serviceIDs = append(serviceIDs, service.ID)
 			}
 		}

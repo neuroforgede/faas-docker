@@ -39,7 +39,7 @@ func UpdateHandler(dockerConfig DockerConfig, c *client.Client, maxRestarts uint
 			InsertDefaults: true,
 		}
 
-		service, _, err := c.ServiceInspectWithRaw(ctx, request.Service, serviceInspectopts)
+		service, _, err := c.ServiceInspectWithRaw(ctx, globalConfig.NFFaaSDockerProject+"_"+request.Service, serviceInspectopts)
 		if err != nil {
 			log.Println("Error inspecting service", err)
 			w.WriteHeader(http.StatusNotFound)
@@ -158,7 +158,7 @@ func updateSpec(request *typesv1.FunctionDeployment, spec *swarm.ServiceSpec, ma
 		Constraints: constraints,
 	}
 
-	spec.Annotations.Name = request.Service
+	spec.Annotations.Name = globalConfig.NFFaaSDockerProject + "_" + request.Service
 
 	spec.RollbackConfig = &swarm.UpdateConfig{
 		FailureAction: "pause",

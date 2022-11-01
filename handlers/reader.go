@@ -57,7 +57,7 @@ func readServices(c client.ServiceAPIClient) ([]typesv1.FunctionStatus, error) {
 			labels, annotations := buildLabelsAndAnnotations(service.Spec.Labels)
 
 			f := typesv1.FunctionStatus{
-				Name:            service.Spec.Name,
+				Name:            service.Spec.Labels["com.openfaas.function"],
 				Image:           service.Spec.TaskTemplate.ContainerSpec.Image,
 				InvocationCount: 0,
 				Replicas:        *service.Spec.Mode.Replicated.Replicas,

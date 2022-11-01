@@ -5,7 +5,7 @@ import (
 )
 
 func isFunctionAndPartOfProject(service swarmTypes.Service) bool {
-	isFunction := len(service.Spec.TaskTemplate.ContainerSpec.Labels["function"]) > 0
+	isFunction := len(service.Spec.TaskTemplate.ContainerSpec.Labels["function"]) > 0 && len(service.Spec.TaskTemplate.ContainerSpec.Labels["com.openfaas.function"]) > 0
 	isPartOfProject := service.Spec.TaskTemplate.ContainerSpec.Labels["com.github.neuroforgede.nf-faas-docker.project"] == globalConfig.NFFaaSDockerProject
 	return isFunction && isPartOfProject
 }

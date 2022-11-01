@@ -112,7 +112,8 @@ func TestReaderSuccessReturnsCorrectBodyWithZeroFunctions(t *testing.T) {
 func TestReaderSuccessReturnsCorrectBodyWithOneFunction(t *testing.T) {
 	replicas := uint64(5)
 	labels := map[string]string{
-		"function": "bar",
+		"function":              "bar",
+		"com.openfaas.function": "bar",
 		"com.github.neuroforgede.nf-faas-docker.project": handlers.GetGlobalConfig().NFFaaSDockerProject,
 	}
 
@@ -158,7 +159,8 @@ func TestReaderSuccessReturnsCorrectBodyWithOneFunction(t *testing.T) {
 			Replicas:        5,
 			EnvProcess:      "bar",
 			Labels: &map[string]string{
-				"function": "bar",
+				"function":              "bar",
+				"com.openfaas.function": "bar",
 				"com.github.neuroforgede.nf-faas-docker.project": handlers.GetGlobalConfig().NFFaaSDockerProject,
 			},
 		},
