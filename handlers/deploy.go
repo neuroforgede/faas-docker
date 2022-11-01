@@ -44,9 +44,17 @@ func DeployHandler(c *client.Client, maxRestarts uint64, restartDelay time.Durat
 		}
 
 		options := types.ServiceCreateOptions{}
-		// FIXME: get the login from a secret. secret should be named like the url
-		if len(request.RegistryAuth) > 0 {
-			auth, err := BuildEncodedAuthConfig(request.RegistryAuth, request.Image)
+
+		registryAuth, err := GetAuthFromImage(request.Image)
+		if err != nil {
+			log.Println("Error building registry auth configuration:", err)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Failed to get auth from Image"))
+			return
+		}
+
+		if len(registryAuth) > 0 {
+			auth, err := BuildEncodedAuthConfig(registryAuth, request.Image)
 			if err != nil {
 				log.Println("Error building registry auth configuration:", err)
 				w.WriteHeader(http.StatusBadRequest)

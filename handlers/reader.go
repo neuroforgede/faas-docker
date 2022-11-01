@@ -62,8 +62,14 @@ func readServices(c client.ServiceAPIClient) ([]typesv1.FunctionStatus, error) {
 				InvocationCount: 0,
 				Replicas:        *service.Spec.Mode.Replicated.Replicas,
 				EnvProcess:      envProcess,
-				Labels:          &labels,
-				Annotations:     &annotations,
+			}
+
+			if labels != nil {
+				f.Labels = &labels
+			}
+
+			if annotations != nil {
+				f.Annotations = &annotations
 			}
 
 			functions = append(functions, f)
