@@ -21,14 +21,15 @@ func genFakeSecret(name string, data string, includeOwnerLabel bool) swarm.Secre
 		Spec: swarm.SecretSpec{
 			Data: []byte(data),
 			Annotations: swarm.Annotations{
-				Name: name,
+				Name: ProjectSpecificName(name),
 			},
 		},
 	}
 
 	if includeOwnerLabel {
 		secret.Spec.Annotations.Labels = map[string]string{
-			ProjectLabel: globalConfig.NFFaaSDockerProject,
+			ProjectLabel:            globalConfig.NFFaaSDockerProject,
+			openFaasSecretNameLabel: name,
 		}
 	}
 
@@ -149,11 +150,11 @@ func Test_SecretsHandler(t *testing.T) {
 			t.Errorf("expected status code '%d', got '%d'", http.StatusCreated, resp.StatusCode)
 		}
 
-		if _, secretExist := dockerClient.secrets[secretName]; !secretExist {
+		if _, secretExist := dockerClient.secrets[ProjectSpecificName(secretName)]; !secretExist {
 			t.Errorf("secret `%s` was not created as expected", secretName)
 		}
 
-		if data := dockerClient.secrets[secretName].Spec.Data; !bytes.Equal(data, []byte(secretValue)) {
+		if data := dockerClient.secrets[ProjectSpecificName(secretName)].Spec.Data; !bytes.Equal(data, []byte(secretValue)) {
 			t.Errorf("want secret: `%s` to be equal `%s`, got: `%s`", secretName, secretValue, string(data))
 		}
 	})

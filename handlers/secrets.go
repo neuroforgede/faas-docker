@@ -17,6 +17,8 @@ import (
 	"github.com/docker/docker/client"
 )
 
+var openFaasSecretNameLabel = "com.openfaas.secret"
+
 //MakeSecretsHandler returns handler for managing secrets
 func MakeSecretsHandler(c client.SecretAPIClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -96,7 +98,7 @@ func getSecretWithName(c client.SecretAPIClient, name string) (secret *swarm.Sec
 	}
 
 	for _, secret := range secrets {
-		if secret.Spec.Name == name {
+		if secret.Spec.Labels[openFaasSecretNameLabel] == name {
 			if secret.Spec.Labels[ProjectLabel] == globalConfig.NFFaaSDockerProject {
 				return &secret, http.StatusOK, nil
 			}
@@ -127,7 +129,7 @@ func getSecrets(c client.SecretAPIClient, _ []byte) (responseStatus int, respons
 	results := []typesv1.Secret{}
 
 	for _, s := range secrets {
-		results = append(results, typesv1.Secret{Name: s.Spec.Name, Value: string(s.Spec.Data)})
+		results = append(results, typesv1.Secret{Name: s.Spec.Labels[openFaasSecretNameLabel], Value: string(s.Spec.Data)})
 	}
 
 	resultsJSON, marshalErr := json.Marshal(results)
@@ -142,9 +144,9 @@ func getSecrets(c client.SecretAPIClient, _ []byte) (responseStatus int, respons
 }
 
 func createNewSecret(c client.SecretAPIClient, body []byte) (responseStatus int, responseBody []byte, err error) {
-	var secret typesv1.Secret
+	var apiSecret typesv1.Secret
 
-	unmarshalErr := json.Unmarshal(body, &secret)
+	unmarshalErr := json.Unmarshal(body, &apiSecret)
 	if unmarshalErr != nil {
 		return http.StatusBadRequest, nil, fmt.Errorf(
 			"error unmarshalling body to json in secretPostHandler: %s",
@@ -154,12 +156,13 @@ func createNewSecret(c client.SecretAPIClient, body []byte) (responseStatus int,
 
 	_, createSecretErr := c.SecretCreate(context.Background(), swarm.SecretSpec{
 		Annotations: swarm.Annotations{
-			Name: secret.Name,
+			Name: ProjectSpecificName(apiSecret.Name),
 			Labels: map[string]string{
-				ProjectLabel: globalConfig.NFFaaSDockerProject,
+				ProjectLabel:            globalConfig.NFFaaSDockerProject,
+				openFaasSecretNameLabel: apiSecret.Name,
 			},
 		},
-		Data: []byte(secret.Value),
+		Data: []byte(apiSecret.Value),
 	})
 	if createSecretErr != nil {
 		return http.StatusInternalServerError, nil, fmt.Errorf(
@@ -172,9 +175,9 @@ func createNewSecret(c client.SecretAPIClient, body []byte) (responseStatus int,
 }
 
 func updateSecret(c client.SecretAPIClient, body []byte) (responseStatus int, responseBody []byte, err error) {
-	var secret typesv1.Secret
+	var apiSecret typesv1.Secret
 
-	unmarshalErr := json.Unmarshal(body, &secret)
+	unmarshalErr := json.Unmarshal(body, &apiSecret)
 	if unmarshalErr != nil {
 		return http.StatusBadRequest, nil, fmt.Errorf(
 			"error unmarshaling secret in secretPutHandler: %s",
@@ -182,29 +185,30 @@ func updateSecret(c client.SecretAPIClient, body []byte) (responseStatus int, re
 		)
 	}
 
-	foundSecret, status, getSecretErr := getSecretWithName(c, secret.Name)
+	foundSecret, status, getSecretErr := getSecretWithName(c, apiSecret.Name)
 	if getSecretErr != nil {
 		return status, nil, fmt.Errorf(
 			"cannot get secret with name: %s. Error: %s",
-			secret.Name,
+			apiSecret.Name,
 			getSecretErr.Error(),
 		)
 	}
 
 	updateSecretErr := c.SecretUpdate(context.Background(), foundSecret.ID, foundSecret.Version, swarm.SecretSpec{
 		Annotations: swarm.Annotations{
-			Name: secret.Name,
+			Name: apiSecret.Name,
 			Labels: map[string]string{
-				ProjectLabel: globalConfig.NFFaaSDockerProject,
+				ProjectLabel:            globalConfig.NFFaaSDockerProject,
+				openFaasSecretNameLabel: apiSecret.Name,
 			},
 		},
-		Data: []byte(secret.Value),
+		Data: []byte(apiSecret.Value),
 	})
 
 	if updateSecretErr != nil {
 		return http.StatusInternalServerError, nil, fmt.Errorf(
 			"couldn't update secret (name: %s, ID: %s) because of error: %s",
-			secret.Name,
+			apiSecret.Name,
 			foundSecret.ID,
 			updateSecretErr.Error(),
 		)
@@ -214,9 +218,9 @@ func updateSecret(c client.SecretAPIClient, body []byte) (responseStatus int, re
 }
 
 func deleteSecret(c client.SecretAPIClient, body []byte) (responseStatus int, responseBody []byte, err error) {
-	var secret typesv1.Secret
+	var apiSecret typesv1.Secret
 
-	unmarshalErr := json.Unmarshal(body, &secret)
+	unmarshalErr := json.Unmarshal(body, &apiSecret)
 	if unmarshalErr != nil {
 		return http.StatusBadRequest, nil, fmt.Errorf(
 			"error unmarshaling secret in secretDeleteHandler: %s",
@@ -224,11 +228,11 @@ func deleteSecret(c client.SecretAPIClient, body []byte) (responseStatus int, re
 		)
 	}
 
-	foundSecret, status, getSecretErr := getSecretWithName(c, secret.Name)
+	foundSecret, status, getSecretErr := getSecretWithName(c, apiSecret.Name)
 	if getSecretErr != nil {
 		return status, nil, fmt.Errorf(
 			"cannot get secret with name: %s, which you want to remove. Error: %s",
-			secret.Name,
+			apiSecret.Name,
 			getSecretErr,
 		)
 	}
@@ -237,7 +241,7 @@ func deleteSecret(c client.SecretAPIClient, body []byte) (responseStatus int, re
 	if removeSecretErr != nil {
 		return http.StatusInternalServerError, nil, fmt.Errorf(
 			"error trying to remove secret (name: `%s`, ID: `%s`): %s",
-			secret.Name,
+			apiSecret.Name,
 			foundSecret.ID,
 			removeSecretErr,
 		)
@@ -253,12 +257,16 @@ func makeSecretsArray(c *client.Client, secretNames []string) ([]*swarm.SecretRe
 		return values, nil
 	}
 
+	originalSecretNames := make(map[string]string)
+
 	secretOpts := new(opts.SecretOpt)
 	for _, secret := range secretNames {
-		secretSpec := fmt.Sprintf("source=%s,target=/var/openfaas/secrets/%s", secret, secret)
+		secretSpec := fmt.Sprintf("source=%s,target=/var/openfaas/secrets/%s", ProjectSpecificName(secret), secret)
 		if err := secretOpts.Set(secretSpec); err != nil {
 			return nil, err
 		}
+		// keep track of the secret names, the secret request uses the actual name in the swarm
+		originalSecretNames[ProjectSpecificName(secret)] = secret
 	}
 
 	requestedSecrets := make(map[string]bool)
@@ -268,6 +276,7 @@ func makeSecretsArray(c *client.Client, secretNames []string) ([]*swarm.SecretRe
 	// the spec
 	args := filters.NewArgs()
 	for _, opt := range secretOpts.Value() {
+		// the secretname is parsed properly already above in the secretSpec, see the Set method
 		args.Add("name", opt.SecretName)
 	}
 
@@ -282,29 +291,30 @@ func makeSecretsArray(c *client.Client, secretNames []string) ([]*swarm.SecretRe
 	foundSecrets := make(map[string]string)
 	foundSecretNames := []string{}
 	for _, secret := range secrets {
-		foundSecrets[secret.Spec.Annotations.Name] = secret.ID
-		foundSecretNames = append(foundSecretNames, secret.Spec.Annotations.Name)
+		foundSecrets[secret.Spec.Labels[openFaasSecretNameLabel]] = secret.ID
+		foundSecretNames = append(foundSecretNames, secret.Spec.Labels[openFaasSecretNameLabel])
 	}
 
 	// mimics the simple syntax for `docker service create --secret foo`
 	// and the code is based on the docker cli
 	for _, opts := range secretOpts.Value() {
+		actualSwarmSecretName := opts.SecretName
+		originalSecretName := originalSecretNames[actualSwarmSecretName]
 
-		secretName := opts.SecretName
-		if _, exists := requestedSecrets[secretName]; exists {
-			return nil, fmt.Errorf("duplicate secret target for %s not allowed", secretName)
+		if _, exists := requestedSecrets[actualSwarmSecretName]; exists {
+			return nil, fmt.Errorf("duplicate secret target for %s not allowed", originalSecretNames[actualSwarmSecretName])
 		}
 
-		id, ok := foundSecrets[secretName]
+		id, ok := foundSecrets[originalSecretName]
 		if !ok {
-			return nil, fmt.Errorf("secret not found: %s; possible choices:\n%v", secretName, foundSecretNames)
+			return nil, fmt.Errorf("secret not found: %s; possible choices:\n%v", originalSecretNames[actualSwarmSecretName], foundSecretNames)
 		}
 
 		options := new(swarm.SecretReference)
 		*options = *opts
 		options.SecretID = id
 
-		requestedSecrets[secretName] = true
+		requestedSecrets[actualSwarmSecretName] = true
 		values = append(values, options)
 	}
 
