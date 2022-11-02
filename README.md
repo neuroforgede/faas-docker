@@ -27,10 +27,11 @@ Features:
 * [x] List
 * [x] Scale
 
-Additional Changes:
+Additional Changes for Shared deployments in a single Swarm:
 
 - [x] Allow for multiple providers to run in the same swarm. Specified via `NF_FAAS_DOCKER_PROJECT` env var
-- [] prefix function name services with project name
+- [x] prefix function name services with project name
+- [ ] prefix secret names with project name
 
 Docker image: [`neuroforgede/nf-faas-docker`](https://hub.docker.com/r/neuroforgede/nf-faas-docker/tags/)
 
