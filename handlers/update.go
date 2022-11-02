@@ -39,7 +39,7 @@ func UpdateHandler(dockerConfig DockerConfig, c *client.Client, maxRestarts uint
 			InsertDefaults: true,
 		}
 
-		service, _, err := c.ServiceInspectWithRaw(ctx, globalConfig.NFFaaSDockerProject+"_"+request.Service, serviceInspectopts)
+		service, _, err := c.ServiceInspectWithRaw(ctx, ProjectSpecificName(request.Service), serviceInspectopts)
 		if err != nil {
 			log.Println("Error inspecting service", err)
 			w.WriteHeader(http.StatusNotFound)
@@ -140,7 +140,7 @@ func updateSpec(request *typesv1.FunctionDeployment, spec *swarm.ServiceSpec, ma
 			// and if we need some kind of deduplication via suffixes we provide that as well
 			Aliases: []string{
 				request.Service,
-				request.Service + "_" + request.Service,
+				request.Service + "_" + globalConfig.NFFaaSDockerProject,
 			},
 		},
 	}
@@ -164,7 +164,7 @@ func updateSpec(request *typesv1.FunctionDeployment, spec *swarm.ServiceSpec, ma
 		Constraints: constraints,
 	}
 
-	spec.Annotations.Name = globalConfig.NFFaaSDockerProject + "_" + request.Service
+	spec.Annotations.Name = ProjectSpecificName(request.Service)
 
 	spec.RollbackConfig = &swarm.UpdateConfig{
 		FailureAction: "pause",

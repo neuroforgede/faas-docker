@@ -152,14 +152,14 @@ func makeSpec(request *typesv1.FunctionDeployment, maxRestarts uint64, restartDe
 			// and if we need some kind of deduplication via suffixes we provide that as well
 			Aliases: []string{
 				request.Service,
-				request.Service + "_" + request.Service,
+				request.Service + "_" + globalConfig.NFFaaSDockerProject,
 			},
 		},
 	}
 
 	spec := swarm.ServiceSpec{
 		Annotations: swarm.Annotations{
-			Name:   globalConfig.NFFaaSDockerProject + "_" + request.Service,
+			Name:   ProjectSpecificName(request.Service),
 			Labels: labels,
 		},
 		TaskTemplate: swarm.TaskSpec{

@@ -43,14 +43,14 @@ func Test_ProxyURLResolver_ByName(t *testing.T) {
 
 	for _, s := range scenarios {
 		t.Run(s.name, func(t *testing.T) {
-			docker := testServiceLister{globalConfig.NFFaaSDockerProject + "_" + s.fncName, s.resolverErr, s.err}
+			docker := testServiceLister{ProjectSpecificName(s.fncName), s.resolverErr, s.err}
 			u, err := NewFunctionLookup(docker, false).Resolve("testFnc")
 			if err != nil && err.Error() != s.err.Error() {
 				t.Errorf("expected resolver error `%s`, got `%s`", s.err, err)
 			}
 
-			if s.err == nil && u.Host != globalConfig.NFFaaSDockerProject+"_"+s.fncName {
-				t.Errorf("expected url host `%s`, got `%s`", globalConfig.NFFaaSDockerProject+"_"+s.fncName, u.Host)
+			if s.err == nil && u.Host != ProjectSpecificName(s.fncName) {
+				t.Errorf("expected url host `%s`, got `%s`", ProjectSpecificName(s.fncName), u.Host)
 			}
 		})
 	}
@@ -72,7 +72,7 @@ func Test_ProxyURLResolver_RoundRobingErrs(t *testing.T) {
 
 	for _, s := range scenarios {
 		t.Run(s.name, func(t *testing.T) {
-			docker := testServiceLister{globalConfig.NFFaaSDockerProject + "_" + s.fncName, s.resolverErr, s.err}
+			docker := testServiceLister{ProjectSpecificName(s.fncName), s.resolverErr, s.err}
 			resolver := NewFunctionLookup(docker, true)
 			resolver.dnsrrLookup = testDNSRRLookup
 

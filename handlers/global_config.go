@@ -21,3 +21,7 @@ func InitGlobalConfig() {
 func GetGlobalConfig() types.GlobalConfig {
 	return globalConfig
 }
+
+func ProjectSpecificName(name string) string {
+	return globalConfig.NFFaaSDockerProject + "_" + name
+}
