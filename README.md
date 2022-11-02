@@ -27,7 +27,7 @@ Features:
 * [x] List
 * [x] Scale
 
-Additional Changes for Shared deployments in a single Swarm:
+Additional Changes for sharing a single Swarm between multiple OpenFaaS instances:
 
 - [x] Allow for multiple providers to run in the same swarm. Specified via `NF_FAAS_DOCKER_PROJECT` env var
 - [x] prefix function name services with project name
