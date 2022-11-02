@@ -17,11 +17,6 @@ import (
 	"github.com/docker/docker/client"
 )
 
-var (
-	ownerLabel      = "com.openfaas.owner"
-	ownerLabelValue = "openfaas"
-)
-
 //MakeSecretsHandler returns handler for managing secrets
 func MakeSecretsHandler(c client.SecretAPIClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -102,15 +97,15 @@ func getSecretWithName(c client.SecretAPIClient, name string) (secret *swarm.Sec
 
 	for _, secret := range secrets {
 		if secret.Spec.Name == name {
-			if secret.Spec.Labels[ownerLabel] == ownerLabelValue {
+			if secret.Spec.Labels[ProjectLabel] == globalConfig.NFFaaSDockerProject {
 				return &secret, http.StatusOK, nil
 			}
 
 			return nil, http.StatusInternalServerError, fmt.Errorf(
 				"found secret with name: %s, but it doesn't have label: %s == %s",
 				name,
-				ownerLabel,
-				ownerLabelValue,
+				ProjectLabel,
+				globalConfig.NFFaaSDockerProject,
 			)
 		}
 	}
@@ -119,12 +114,12 @@ func getSecretWithName(c client.SecretAPIClient, name string) (secret *swarm.Sec
 }
 
 func getSecrets(c client.SecretAPIClient, _ []byte) (responseStatus int, responseBody []byte, err error) {
-	secrets, err := getSecretsWithLabel(c, ownerLabel, ownerLabelValue)
+	secrets, err := getSecretsWithLabel(c, ProjectLabel, globalConfig.NFFaaSDockerProject)
 	if err != nil {
 		return http.StatusInternalServerError, nil, fmt.Errorf(
 			"cannot get secrets with label: %s == %s in secretGetHandler: %s",
-			ownerLabel,
-			ownerLabelValue,
+			ProjectLabel,
+			globalConfig.NFFaaSDockerProject,
 			err,
 		)
 	}
@@ -161,7 +156,7 @@ func createNewSecret(c client.SecretAPIClient, body []byte) (responseStatus int,
 		Annotations: swarm.Annotations{
 			Name: secret.Name,
 			Labels: map[string]string{
-				ownerLabel: ownerLabelValue,
+				ProjectLabel: globalConfig.NFFaaSDockerProject,
 			},
 		},
 		Data: []byte(secret.Value),
@@ -200,7 +195,7 @@ func updateSecret(c client.SecretAPIClient, body []byte) (responseStatus int, re
 		Annotations: swarm.Annotations{
 			Name: secret.Name,
 			Labels: map[string]string{
-				ownerLabel: ownerLabelValue,
+				ProjectLabel: globalConfig.NFFaaSDockerProject,
 			},
 		},
 		Data: []byte(secret.Value),

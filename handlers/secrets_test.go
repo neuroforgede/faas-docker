@@ -28,7 +28,7 @@ func genFakeSecret(name string, data string, includeOwnerLabel bool) swarm.Secre
 
 	if includeOwnerLabel {
 		secret.Spec.Annotations.Labels = map[string]string{
-			ownerLabel: ownerLabelValue,
+			ProjectLabel: globalConfig.NFFaaSDockerProject,
 		}
 	}
 
@@ -89,7 +89,7 @@ func (c *fakeDockerSecretAPIClient) SecretCreate(
 			Annotations: swarm.Annotations{
 				Name: secretDesc.Name,
 				Labels: map[string]string{
-					ownerLabel: ownerLabelValue,
+					ProjectLabel: globalConfig.NFFaaSDockerProject,
 				},
 			},
 			Data: secretDesc.Data,
