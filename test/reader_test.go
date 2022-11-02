@@ -114,7 +114,7 @@ func TestReaderSuccessReturnsCorrectBodyWithOneFunction(t *testing.T) {
 	labels := map[string]string{
 		"function":              "bar",
 		"com.openfaas.function": "bar",
-		"com.github.neuroforgede.nf-faas-docker.project": handlers.GetGlobalConfig().NFFaaSDockerProject,
+		handlers.ProjectLabel:   handlers.GetGlobalConfig().NFFaaSDockerProject,
 	}
 
 	services := []swarm.Service{
@@ -161,7 +161,7 @@ func TestReaderSuccessReturnsCorrectBodyWithOneFunction(t *testing.T) {
 			Labels: &map[string]string{
 				"function":              "bar",
 				"com.openfaas.function": "bar",
-				"com.github.neuroforgede.nf-faas-docker.project": handlers.GetGlobalConfig().NFFaaSDockerProject,
+				handlers.ProjectLabel:   handlers.GetGlobalConfig().NFFaaSDockerProject,
 			},
 		},
 	}

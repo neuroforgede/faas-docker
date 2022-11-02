@@ -65,7 +65,7 @@ func Test_DeleteHandler(t *testing.T) {
 								Labels: map[string]string{
 									"function":              "true",
 									"com.openfaas.function": "test-func",
-									"com.github.neuroforgede.nf-faas-docker.project": GetGlobalConfig().NFFaaSDockerProject,
+									ProjectLabel:            GetGlobalConfig().NFFaaSDockerProject,
 								},
 							},
 						},
@@ -93,7 +93,7 @@ func Test_DeleteHandler(t *testing.T) {
 								Labels: map[string]string{
 									"function":              "true",
 									"com.openfaas.function": "test-func",
-									"com.github.neuroforgede.nf-faas-docker.project": GetGlobalConfig().NFFaaSDockerProject,
+									ProjectLabel:            GetGlobalConfig().NFFaaSDockerProject,
 								},
 							},
 						},
@@ -118,7 +118,7 @@ func Test_DeleteHandler(t *testing.T) {
 								Labels: map[string]string{
 									"function":              "true",
 									"com.openfaas.function": "test-func",
-									"com.github.neuroforgede.nf-faas-docker.project": GetGlobalConfig().NFFaaSDockerProject,
+									ProjectLabel:            GetGlobalConfig().NFFaaSDockerProject,
 								},
 							},
 						},

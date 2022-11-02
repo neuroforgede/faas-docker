@@ -28,15 +28,15 @@ func Test_BuildLabels_Defaults(t *testing.T) {
 		t.Errorf("want: '%s' entry in label map got: key not found", "function")
 	}
 
-	if _, ok := val["com.github.neuroforgede.nf-faas-docker.project"]; !ok {
-		t.Errorf("want: '%s' entry in label map got: key not found", "com.github.neuroforgede.nf-faas-docker.project")
+	if _, ok := val[ProjectLabel]; !ok {
+		t.Errorf("want: '%s' entry in label map got: key not found", ProjectLabel)
 	}
 
-	if val["com.github.neuroforgede.nf-faas-docker.project"] != globalConfig.NFFaaSDockerProject {
+	if val[ProjectLabel] != globalConfig.NFFaaSDockerProject {
 		t.Errorf("want: '%s' entry in label to be equal to '%s' map got: '%s",
-			"com.github.neuroforgede.nf-faas-docker.project",
+			ProjectLabel,
 			globalConfig.NFFaaSDockerProject,
-			val["com.github.neuroforgede.nf-faas-docker.project"],
+			val[ProjectLabel],
 		)
 	}
 }

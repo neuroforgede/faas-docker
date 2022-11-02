@@ -10,6 +10,8 @@ var globalConfig = types.GlobalConfig{
 	NFFaaSDockerProject: "default",
 }
 
+const ProjectLabel = "com.github.neuroforgede.nf-faas-docker.project"
+
 func InitGlobalConfig() {
 	nfFaaSDockerProject, found := os.LookupEnv("NF_FAAS_DOCKER_PROJECT")
 	if !found {
