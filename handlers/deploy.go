@@ -73,14 +73,13 @@ func DeployHandler(dockerConfig DockerConfig, c *client.Client, maxRestarts uint
 			return
 		}
 
-		// FIXME: add ability to specify network back (maybe via annotation?)
-		networkValue, networkErr := lookupNetwork(c)
+		networks, networkErr := lookupNetworks(c, request.Annotations)
 		if networkErr != nil {
 			log.Printf("Error querying networks: %s\n", networkErr)
 			return
 		}
 
-		spec, err := makeSpec(&request, maxRestarts, restartDelay, secrets, networkValue)
+		spec, err := makeSpec(&request, maxRestarts, restartDelay, secrets, networks)
 		if err != nil {
 
 			log.Printf("Error creating specification: %s\n", err)
@@ -108,27 +107,40 @@ func DeployHandler(dockerConfig DockerConfig, c *client.Client, maxRestarts uint
 	}
 }
 
-func lookupNetwork(c *client.Client) (string, error) {
+func lookupNetworks(c *client.Client, annotations *map[string]string) ([]string, error) {
 	networkFilters := filters.NewArgs()
 	networkFilters.Add("label", "openfaas=true")
-	networkFilters.Add("label", "com.github.neuroforgede.nf-faas-docker.project="+globalConfig.NFFaaSDockerProject)
+	networkFilters.Add("label", ProjectLabel+"="+globalConfig.NFFaaSDockerProject)
 	networkListOptions := types.NetworkListOptions{
 		Filters: networkFilters,
 	}
 
-	networks, networkErr := c.NetworkList(context.Background(), networkListOptions)
+	var foundNetworks []string
+	if annotations != nil {
+		if additionalNetworksLabelValue, exist := (*annotations)[AdditionalNetworksLabel]; exist {
+			additionalSpecifiedNetworks := strings.Split(additionalNetworksLabelValue, ",")
+			for _, network := range additionalSpecifiedNetworks {
+				foundNetworks = append(foundNetworks, network)
+			}
+		}
+	}
+
+	projectNetworks, networkErr := c.NetworkList(context.Background(), networkListOptions)
 	if networkErr != nil {
-		return "", nil
+		return foundNetworks, nil
 	}
 
-	if len(networks) > 0 {
-		return networks[0].Name, nil
+	if len(projectNetworks) > 0 {
+		for _, network := range projectNetworks {
+			foundNetworks = append(foundNetworks, network.Name)
+		}
+		return foundNetworks, nil
 	}
 
-	return "", nil
+	return foundNetworks, nil
 }
 
-func makeSpec(request *typesv1.FunctionDeployment, maxRestarts uint64, restartDelay time.Duration, secrets []*swarm.SecretReference, network string) (swarm.ServiceSpec, error) {
+func makeSpec(request *typesv1.FunctionDeployment, maxRestarts uint64, restartDelay time.Duration, secrets []*swarm.SecretReference, networks []string) (swarm.ServiceSpec, error) {
 	constraints := []string{}
 
 	if request.Constraints != nil && len(request.Constraints) > 0 {
@@ -145,8 +157,9 @@ func makeSpec(request *typesv1.FunctionDeployment, maxRestarts uint64, restartDe
 
 	resources := buildResources(request)
 
-	nets := []swarm.NetworkAttachmentConfig{
-		{
+	var nets []swarm.NetworkAttachmentConfig
+	for _, network := range networks {
+		nets = append(nets, swarm.NetworkAttachmentConfig{
 			Target: network,
 			// required so that the gateway can directly call via function name
 			// and if we need some kind of deduplication via suffixes we provide that as well
@@ -154,7 +167,7 @@ func makeSpec(request *typesv1.FunctionDeployment, maxRestarts uint64, restartDe
 				request.Service,
 				request.Service + "_" + globalConfig.NFFaaSDockerProject,
 			},
-		},
+		})
 	}
 
 	spec := swarm.ServiceSpec{

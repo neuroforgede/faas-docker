@@ -11,6 +11,7 @@ var globalConfig = types.GlobalConfig{
 }
 
 const ProjectLabel = "com.github.neuroforgede.nf-faas-docker.project"
+const AdditionalNetworksLabel = "com.github.neuroforgede.nf-faas-docker.additionalNetworks"
 
 func InitGlobalConfig() {
 	nfFaaSDockerProject, found := os.LookupEnv("NF_FAAS_DOCKER_PROJECT")

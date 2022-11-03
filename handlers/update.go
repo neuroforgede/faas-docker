@@ -55,14 +55,13 @@ func UpdateHandler(dockerConfig DockerConfig, c *client.Client, maxRestarts uint
 			return
 		}
 
-		// FIXME: add ability to specify network back (maybe via annotation?)
-		networkValue, networkErr := lookupNetwork(c)
+		networks, networkErr := lookupNetworks(c, request.Annotations)
 		if networkErr != nil {
 			log.Printf("Error querying networks: %s\n", networkErr)
 			return
 		}
 
-		if err := updateSpec(&request, &service.Spec, maxRestarts, restartDelay, secrets, networkValue); err != nil {
+		if err := updateSpec(&request, &service.Spec, maxRestarts, restartDelay, secrets, networks); err != nil {
 			log.Println("Error updating service spec:", err)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Update spc error: " + err.Error()))
@@ -110,7 +109,7 @@ func UpdateHandler(dockerConfig DockerConfig, c *client.Client, maxRestarts uint
 	}
 }
 
-func updateSpec(request *typesv1.FunctionDeployment, spec *swarm.ServiceSpec, maxRestarts uint64, restartDelay time.Duration, secrets []*swarm.SecretReference, network string) error {
+func updateSpec(request *typesv1.FunctionDeployment, spec *swarm.ServiceSpec, maxRestarts uint64, restartDelay time.Duration, secrets []*swarm.SecretReference, networks []string) error {
 
 	constraints := []string{}
 	if request.Constraints != nil && len(request.Constraints) > 0 {
@@ -133,8 +132,9 @@ func updateSpec(request *typesv1.FunctionDeployment, spec *swarm.ServiceSpec, ma
 	spec.TaskTemplate.ContainerSpec.Labels = labels
 	spec.TaskTemplate.ContainerSpec.Labels["com.openfaas.uid"] = fmt.Sprintf("%d", time.Now().Nanosecond())
 
-	spec.TaskTemplate.Networks = []swarm.NetworkAttachmentConfig{
-		{
+	var nets []swarm.NetworkAttachmentConfig
+	for _, network := range networks {
+		nets = append(nets, swarm.NetworkAttachmentConfig{
 			Target: network,
 			// required so that the gateway can directly call via function name
 			// and if we need some kind of deduplication via suffixes we provide that as well
@@ -142,8 +142,9 @@ func updateSpec(request *typesv1.FunctionDeployment, spec *swarm.ServiceSpec, ma
 				request.Service,
 				request.Service + "_" + globalConfig.NFFaaSDockerProject,
 			},
-		},
+		})
 	}
+	spec.TaskTemplate.Networks = nets
 
 	spec.TaskTemplate.ContainerSpec.Secrets = secrets
 	spec.TaskTemplate.ContainerSpec.ReadOnly = request.ReadOnlyRootFilesystem
