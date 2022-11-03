@@ -27,6 +27,10 @@ Features:
 * [x] List
 * [x] Scale
 
+Not Supported:
+
+- [ ] Namespaces - Docker Swarm does not have Namespaces. Instead deploy the OpenFaaS stack multiple times with different projects.
+
 Additional Changes for sharing a single Swarm between multiple OpenFaaS instances:
 
 - [x] Allow for multiple providers to run in the same swarm. Specified via `NF_FAAS_DOCKER_PROJECT` env var
