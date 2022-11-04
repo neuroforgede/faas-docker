@@ -12,9 +12,10 @@ Deployment code is at https://github.com/neuroforgede/nf-faas-docker-stack
 
 ## Summary
 
-This project adds support for Docker Swarm for usage in modern versions of OpenFaaS ®.
+This project adds support for Docker Swarm for usage in modern versions of OpenFaaS Community Edition (CE)
 
 We do not aim to keep backwards support for existing deployments using faas-swarm. If you need help migrating, please reach out in the discussions.
+
 ## Status
 
 Status: Released
