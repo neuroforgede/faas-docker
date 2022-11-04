@@ -1,4 +1,4 @@
-Proudly made by [NeuroForge](https://neuroforge.de/) in Bayreuth, Germany.
+Fork maintained by [NeuroForge](https://neuroforge.de/) in Bayreuth, Germany.
 
 nf-faas-docker
 ==============
