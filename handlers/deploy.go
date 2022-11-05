@@ -44,6 +44,7 @@ func DeployHandler(dockerConfig DockerConfig, c *client.Client, maxRestarts uint
 		}
 
 		options := types.ServiceCreateOptions{}
+		options.QueryRegistry = globalConfig.AlwaysResolveImage
 
 		registryAuth, err := GetAuthFromImage(dockerConfig, request.Image)
 		if err != nil {

@@ -8,6 +8,7 @@ import (
 
 var globalConfig = types.GlobalConfig{
 	NFFaaSDockerProject: "default",
+	AlwaysResolveImage:  true,
 }
 
 const ProjectLabel = "com.github.neuroforgede.nf-faas-docker.project"
@@ -19,6 +20,11 @@ func InitGlobalConfig() {
 		panic("did not find NF_FAAS_DOCKER_PROJECT env var. Exiting to protect against cross project contamination")
 	}
 	globalConfig.NFFaaSDockerProject = nfFaaSDockerProject
+
+	alwaysResolveImage, found := os.LookupEnv("NF_FAAS_ALWAYS_RESOLVE_IMAGE")
+	if found {
+		globalConfig.AlwaysResolveImage = alwaysResolveImage == "true"
+	}
 }
 
 func GetGlobalConfig() types.GlobalConfig {

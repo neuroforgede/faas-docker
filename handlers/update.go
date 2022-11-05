@@ -70,6 +70,7 @@ func UpdateHandler(dockerConfig DockerConfig, c *client.Client, maxRestarts uint
 
 		updateOpts := types.ServiceUpdateOptions{}
 		updateOpts.RegistryAuthFrom = types.RegistryAuthFromSpec
+		updateOpts.QueryRegistry = true
 
 		registryAuth, err := GetAuthFromImage(dockerConfig, request.Image)
 		if err != nil {
