@@ -6,21 +6,22 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/url"
 	"os"
+
+	"github.com/docker/distribution/reference"
 )
 
 type DockerConfig struct {
-	auths map[string]DockerRegistryAuthConfig
+	Auths map[string]DockerRegistryAuthConfig `json:"auths"`
 }
 
 type DockerRegistryAuthConfig struct {
-	auth string
+	Auth string `json:"auth"`
 }
 
 func DefaultDockerConfig() DockerConfig {
 	return DockerConfig{
-		auths: map[string]DockerRegistryAuthConfig{},
+		Auths: map[string]DockerRegistryAuthConfig{},
 	}
 }
 
@@ -45,44 +46,51 @@ func ParseDockerConfig() (DockerConfig, error) {
 
 	defer jsonFile.Close()
 
-	// read our opened xmlFile as a byte array.
 	byteValue, _ := ioutil.ReadAll(jsonFile)
-
-	// we initialize our Users array
 	var dockerConfig DockerConfig
 
-	// we unmarshal our byteArray which contains our
-	// jsonFile's content into 'users' which we defined above
 	err = json.Unmarshal(byteValue, &dockerConfig)
 	if err != nil {
 		log.Printf("Error parsing docker config %s", err)
 		return DefaultDockerConfig(), err
 	}
 
-	log.Printf("found auth for %d registries in path %s", len(dockerConfig.auths), dockerConfigPath)
+	log.Printf("found auth for %d registries in path %s", len(dockerConfig.Auths), dockerConfigPath)
+
+	log.Printf("parsed auth %s", dockerConfig.Auths)
 
 	return dockerConfig, nil
 }
 
 func GetAuthFromImage(dockerConfig DockerConfig, image string) (string, error) {
-	url, err := url.Parse(image)
+	log.Printf("attempting to get auth for docker image %s", image)
+
+	named, err := reference.ParseNamed(image)
 	if err != nil {
+		log.Printf("failed parsing image reference %s", image)
 		return "", err
 	}
 
-	registry := url.Host
-	return GetAuth(dockerConfig, registry)
+	domain := reference.Domain(named)
+	if domain == "" {
+		log.Printf("No domain detected on docker image %s. Using no special host for credential lookup", image)
+	}
+
+	log.Printf("detected registry %s, looking up credentials...", domain)
+	return GetAuth(dockerConfig, domain)
 }
 
 func GetAuth(dockerConfig DockerConfig, registry string) (string, error) {
 
-	if dockerConfig.auths != nil {
-		dockerRegistryConfig, exist := dockerConfig.auths[registry]
+	if dockerConfig.Auths != nil {
+		dockerRegistryConfig, exist := dockerConfig.Auths[registry]
 		if exist {
-			fmt.Printf("detected docker registry auth for registry %s", registry)
-			return dockerRegistryConfig.auth, nil
+			log.Printf("found docker registry auth for registry %s", registry)
+			return dockerRegistryConfig.Auth, nil
 		}
 	}
+
+	log.Printf("did not find auth for registry %s", registry)
 
 	return "", nil
 }
