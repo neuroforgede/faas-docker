@@ -31,7 +31,7 @@ func ParseDockerConfig() (DockerConfig, error) {
 	}
 
 	if _, err := os.Stat(dockerConfigPath); errors.Is(err, os.ErrNotExist) {
-		log.Println("did not find docker-config secret file at " + dockerConfigPath)
+		log.Printf("did not find docker-config secret file at " + dockerConfigPath)
 		return DefaultDockerConfig(), nil
 	}
 
@@ -55,9 +55,11 @@ func ParseDockerConfig() (DockerConfig, error) {
 	// jsonFile's content into 'users' which we defined above
 	err = json.Unmarshal(byteValue, &dockerConfig)
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("Error parsing docker config %s", err)
 		return DefaultDockerConfig(), err
 	}
+
+	log.Printf("found auth for %d registries in path %s", len(dockerConfig.auths), dockerConfigPath)
 
 	return dockerConfig, nil
 }

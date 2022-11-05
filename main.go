@@ -57,7 +57,7 @@ func main() {
 	dockerConfig, dockerConfigErr := handlers.ParseDockerConfig()
 	if dockerConfigErr != nil {
 		dockerConfig = handlers.DefaultDockerConfig()
-		log.Println("failed to parse docker config. defaulting to empty")
+		log.Printf("failed to parse docker config. defaulting to empty")
 	}
 
 	bootstrapHandlers := bootTypes.FaaSHandlers{

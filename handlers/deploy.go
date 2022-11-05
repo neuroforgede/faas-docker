@@ -43,6 +43,8 @@ func DeployHandler(dockerConfig DockerConfig, c *client.Client, maxRestarts uint
 			return
 		}
 
+		log.Printf("DeployHandler - deploying function: %s\n", request.Service)
+
 		options := types.ServiceCreateOptions{}
 		options.QueryRegistry = globalConfig.AlwaysResolveImage
 

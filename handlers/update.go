@@ -35,6 +35,8 @@ func UpdateHandler(dockerConfig DockerConfig, c *client.Client, maxRestarts uint
 			return
 		}
 
+		log.Printf("UpdateHandler - updating function: %s\n", request.Service)
+
 		serviceInspectopts := types.ServiceInspectOptions{
 			InsertDefaults: true,
 		}
@@ -70,7 +72,7 @@ func UpdateHandler(dockerConfig DockerConfig, c *client.Client, maxRestarts uint
 
 		updateOpts := types.ServiceUpdateOptions{}
 		updateOpts.RegistryAuthFrom = types.RegistryAuthFromSpec
-		updateOpts.QueryRegistry = true
+		updateOpts.QueryRegistry = globalConfig.AlwaysResolveImage
 
 		registryAuth, err := GetAuthFromImage(dockerConfig, request.Image)
 		if err != nil {
