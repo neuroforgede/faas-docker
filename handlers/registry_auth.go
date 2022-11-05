@@ -57,8 +57,6 @@ func ParseDockerConfig() (DockerConfig, error) {
 
 	log.Printf("found auth for %d registries in path %s", len(dockerConfig.Auths), dockerConfigPath)
 
-	log.Printf("parsed auth %s", dockerConfig.Auths)
-
 	return dockerConfig, nil
 }
 
