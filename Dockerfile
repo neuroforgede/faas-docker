@@ -1,4 +1,4 @@
-FROM teamserverless/license-check:0.3.6 as license-check
+FROM ghcr.io/teamserverless/license-check:0.4.1 as license-check
 
 FROM golang:1.18 as build
 ARG GO111MODULE=off
