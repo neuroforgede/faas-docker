@@ -39,7 +39,7 @@ Additional Changes for sharing a single Swarm between multiple OpenFaaS instance
 - [x] prefix function name services with project name
 - [x] prefix secret names with project name
 
-Docker image: [`neuroforgede/nf-faas-docker`](https://hub.docker.com/r/neuroforgede/nf-faas-docker/tags/)
+Docker image builds can be found [here](https://github.com/neuroforgede/nf-faas-docker/pkgs/container/nf-faas-docker).
 
 ## Trademark notice
 
